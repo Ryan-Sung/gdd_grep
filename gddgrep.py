@@ -1,15 +1,17 @@
+from atexit import register
 import os
 import sys
 import re
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-E')
+parser.add_argument('-E', help = 'need a QUOTED regex input : \'pattern\'')
 parser.add_argument('input', type=str, default = None, nargs='?')
 
 args = parser.parse_args()
 
 print(args.E)
+# print(args)
 
 if not os.isatty(sys.stdin.fileno()) and args.input != None:
     print("too much input")
@@ -17,6 +19,7 @@ if not os.isatty(sys.stdin.fileno()) and args.input != None:
     
 if os.isatty(sys.stdin.fileno()) and args.input == None:
     print("input needed")
+    exit(1)
     
     
 INPUT = ""
@@ -25,14 +28,11 @@ if args.input != None:
     INPUT = open(args.input, 'r').read()
 
 if not os.isatty(sys.stdin.fileno()):
-    INPUT = sys.stdin.read()
     print("std input")
+    INPUT = sys.stdin.read()
     
-# print(INPUT, type(INPUT), sep = ' ')
-
-# for c in INPUT:
-#     if c == '\n':
-#         print('$')
-#     else:
-#         print(c, end=' ')
-    
+regex = args.E
+if regex != None:
+    regex = r'\b.*' + regex + r'.*\b'
+    res = re.findall(regex, INPUT, re.MULTILINE)
+    print(*res, sep='\n')
