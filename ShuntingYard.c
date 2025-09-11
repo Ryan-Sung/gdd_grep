@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* strlen */
 #include <string.h>
-// strlen
+
+/*
+point out 'ss|' bad regex error ?
+*/
 
 enum
 {
@@ -57,46 +61,45 @@ re2post(char *re){
 
     // '\0' = 0x00 = false :D
     for(; *re; re++){
-        printf("%d %d\n", *re, natom);
         switch(*re){
-            case '(':
-                natomcheck(0, 1, 0);
-                if( p >= paren+100 )
-                    return NULL;
-                p->nalt = nalt;
-                p->natom = natom;
-                p++;
-                nalt = natom = 0;
-                break;
-            case '|':
-                natomcheck(1, 1, 1);
-                nalt++;
-                break;
-            case ')':
-                if( p == paren )
-                    return NULL;
-                natomcheck(1, 1, 1);
-                altfill();
+        case '(':
+            natomcheck(0, 1, 0);
+            if( p >= paren+100 )
+                return NULL;
+            p->nalt = nalt;
+            p->natom = natom;
+            p++;
+            nalt = natom = 0;
+            break;
+        case '|':
+            natomcheck(1, 1, 1);
+            nalt++;
+            break;
+        case ')':
+            if( p == paren )
+                return NULL;
+            natomcheck(1, 1, 1);
+            altfill();
 
-                --p;
-                nalt = p->nalt;
-                natom = p->natom;
-                natom++;
-                break;
-            case '*':
-            case '?':
-            case '+':
-                natomcheck(1, 0, 0);
-                *idx++ = *re;
-                break;
+            --p;
+            nalt = p->nalt;
+            natom = p->natom;
+            natom++;
+            break;
+        case '*':
+        case '?':
+        case '+':
+            natomcheck(1, 0, 0);
+            *idx++ = *re;
+            break;
 
-            // check if '.' = 
-            case '.':
-            default:
-                natomcheck(0, 1, 0);
-                *idx++ = *re;
-                natom++;
-                break;
+        // check if '.' = 
+        case '.':
+        default:
+            natomcheck(0, 1, 0);
+            *idx++ = *re;
+            natom++;
+            break;
         }       
     }
 
@@ -117,10 +120,11 @@ main(int argc, char *argv[])
     int i;
     char *post, *p;
 
-    if( argc < 3 ){
+    if( argc != 2 ){
         fprintf(stderr, "Run Time Error!\n");
-        fprintf(stderr, "Usage : %s <regexp> <input1> <input2>...\n", argv[0]);
-        fprintf(stderr, "For safety, please enclose every input in quotation marks :)\n");
+        // fprintf(stderr, "Usage : %s <regexp> <input1> <input2>...\n", argv[0]);
+        fprintf(stderr, "Usage : %s <regexp>\n", argv[0]);
+        fprintf(stderr, "For safety, please enclose input in quotation marks :)\n");
         return 1;
     }
 
@@ -133,16 +137,23 @@ main(int argc, char *argv[])
 		return 1;
     }
 
-    printf("\nlen : %lu\n", strlen(post));
-    for(p = post; *p; p++){
-        if( *p == MATCH ) printf("MATCH ");
-        if( *p == CONCAT ) printf("CONCAT ");
-        else printf("%c ", *p);
-    }
+    // printf("\nlen : %lu\n", strlen(post));
+    // for(p = post; *p; p++){
+    //     if( *p == MATCH ) printf("MATCH ");
+    //     if( *p == CONCAT ) printf("CONCAT ");
+    //     else printf("%c ", *p);
+    // }
+    // printf("\n");
+
+    printf("%s\n", post);
 
     return 0;
 }
  
+/*
+is 's(s|c)+?' valid ?
+*/
+
 
 /* OLD VERSION */
 /*
