@@ -30,6 +30,7 @@ state(int c, State *out1, State *out2)
 
     nstate++;
     s = malloc(sizeof *s);
+    s->lastlist = 0;
     s->c = c;
     s->out1 = out1;
     s->out2 = out2;
@@ -67,7 +68,7 @@ list1(State **outp)
     /* Pointer reinterpret >< */
     l = (Ptrlist*)outp;
     l->next = NULL;
-    return 0;
+    return l;
 }
 
 Ptrlist*
@@ -85,8 +86,12 @@ append(Ptrlist *l1, Ptrlist *l2)
 void 
 patch(Ptrlist *l, State *s)
 {
-    for(; l; l = l->next)
+    Ptrlist *next;
+    for(; l; l = next){
+        // hey why no HI
+        next = l->next;
         l->s = s;
+    }
 
     return;
 }
@@ -99,6 +104,8 @@ post2nfa(char *post)
 
     if( post == NULL )
         return NULL;
+    
+    // printf("Check 1\n");
     
     char *p;
     Frag stack[1000], e, e1, e2;
@@ -126,7 +133,7 @@ post2nfa(char *post)
         case '?':
             e = pop();
             s = state(SPLIT, e.start, NULL);
-            push(s, append(e1.out, list1(&s->out2)));
+            push(s, append(e.out, list1(&s->out2)));
             break;
         case '*':
             e = pop();
@@ -143,10 +150,15 @@ post2nfa(char *post)
         }
     }
 
+    // printf("Check 2\n");
+
     e = pop();
     // How come this ?
-    if(stackp != stack)
+    if(stackp != stack){
         return NULL;
+    }
+
+    // printf("Check 3\n");
 
     patch(e.out, &matchstate);
     return e.start;
@@ -192,8 +204,10 @@ ismatch(List *l)
     return 0;
 }
 
-void addstate(List *l, State*s)
+void addstate(List *l, State *s)
 {
+    if( s == NULL ) printf("WTF\n");
+
     if( s == NULL || s->lastlist == listid )
         return;
 
@@ -205,7 +219,6 @@ void addstate(List *l, State*s)
     }
     else{
         l->s[l->n++] = s;
-        printf("+1 ");
     }
 
     return;
@@ -221,12 +234,12 @@ step(List *clist, int c, List *nlist)
 
     listid++;
     nlist->n = 0;
-    printf("%d ", clist->n);
     for(i = 0; i < clist->n; i++){
         s = clist->s[i];
-        if( valid(s->c) )
+        if( valid(s->c) ){
             addstate(nlist, s->out1);
             /* why there no s->out2 ? */
+        }
     }
 
 
@@ -237,17 +250,15 @@ int
 match(State *start, char *s)
 {
     int i, c;
-    List *clist, *nlist, *temp;
+    List *clist, *nlist, *t; //, *temp;
 
     /* Why &l1 not l1 ? */
     clist = startlist(start, &l1);
     nlist = &l2;
     for(; *s; s++){
-        c = *s;
+        c = *s; // & 0xFF;
         step(clist, c, nlist);
-
-        /* bruh idk why Russ Cox do tri-swap here */
-        clist = nlist;
+        t = clist; clist = nlist; nlist = t;
     }
 
     return ismatch(clist);
@@ -259,19 +270,15 @@ int main(int argc, char **argv){
         return 1;
     }
 
-    int i;
+    int i, cnt;
     static char re[10000];
     char *post = re; // regex in postfix
     State *start;
 
     // pipe input -> stding
     scanf("%s", post);
+    printf("received : %s\n", post);
     char *p;
-    // for(p = post; *p; p++){
-    //     if( *p == CONCAT ) printf("CONCAT ");
-    //     else printf("%c ", *p);
-    // }
-    // printf("\n");
 
     start = post2nfa(post);
     if( start == NULL ){
@@ -281,12 +288,19 @@ int main(int argc, char **argv){
 
     /* wait is l1.s[0] a good parameter ? */
     /* it doesnt exist ?!?!*/
-    l1.s = malloc(nstate * sizeof l1.s[0]);
-    l2.s = malloc(nstate * sizeof l2.s[0]);
-    for(i = 1; i < argc; i++){
-        if( match(start, argv[i]) )
-            printf("%s\n", argv[i]);
-        printf("\n");
+    l1.s = malloc(nstate * sizeof start);
+    l2.s = malloc(nstate * sizeof start);
+
+
+    for(i = 1, cnt = 0; i < argc; i++){
+        if( match(start, argv[i]) ){
+            printf("find : %s\n", argv[i]);
+            cnt++;
+        }
     }
+
+    if( cnt ) printf("totally find %d matches !\n", cnt);
+    else printf("find nothing QAQ\n");
+
     return 0;
 }
