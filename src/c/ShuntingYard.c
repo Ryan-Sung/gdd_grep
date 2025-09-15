@@ -60,6 +60,7 @@ re2post(char *re){
             *idx++ = '|';
 
     // '\0' = 0x00 = false :D
+    // or its NULL ?
     for(; *re; re++){
         switch(*re){
         case '(':
@@ -108,8 +109,6 @@ re2post(char *re){
     natomcheck(0, 1, 1);
     altfill();
     *idx = 0x00;
-
-
 
     return buf;
 }
