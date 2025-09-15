@@ -1,6 +1,4 @@
 #include <stdio.h>
-
-/* malloc */
 #include <stdlib.h>
 
 /* what if it's func not union ? */
@@ -277,6 +275,7 @@ int main(int argc, char **argv){
 
     // pipe input -> stding
     scanf("%s", post);
+
     printf("received : %s\n", post);
     char *p;
 

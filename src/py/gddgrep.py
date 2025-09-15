@@ -33,6 +33,6 @@ if not os.isatty(sys.stdin.fileno()):
     
 regex = args.E
 if regex != None:
-    regex = r'\b.*' + regex + r'.*\b'
+    regex = r'\b.*' + regex + r'.*\n'
     res = re.findall(regex, INPUT, re.MULTILINE)
     print(*res, sep='\n')

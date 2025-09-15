@@ -134,16 +134,8 @@ main(int argc, char *argv[])
     post = re2post(argv[1]);
     if( post == NULL ){
         fprintf(stderr, "bad regexp : \'%s\'\n", argv[1]);
-		return 1;
+        return 1;
     }
-
-    // printf("\nlen : %lu\n", strlen(post));
-    // for(p = post; *p; p++){
-    //     if( *p == MATCH ) printf("MATCH ");
-    //     if( *p == CONCAT ) printf("CONCAT ");
-    //     else printf("%c ", *p);
-    // }
-    // printf("\n");
 
     printf("%s\n", post);
 
@@ -152,6 +144,8 @@ main(int argc, char *argv[])
  
 /*
 is 's(s|c)+?' valid ?
+
+if return 1, need to tell thompson ?
 */
 
 
@@ -180,4 +174,8 @@ is 's(s|c)+?' valid ?
                 *idx++ = CONCAT;                        \
             }                                           \
         }while(ifwhile && b == 1 && natom);             \
+*/
+
+/*
+(((((((((((((((((((((((((((((((((((((((())))))))))))))))))))(((((((((((((((((((())))))))))))))))))))(((((((((((((((((((())))))))))))))))))))(((((((((((((((((((())))))))))))))))))))(((((((((((((((((((())))))))))))))))))))(((((((((((((((((((())))))))))))))))))))))))))))))))))))))))
 */
